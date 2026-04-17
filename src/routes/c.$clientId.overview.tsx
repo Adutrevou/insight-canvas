@@ -145,7 +145,7 @@ function Overview() {
     }
 
     // Manual-update-backed metric
-    const mUpdates = updates.filter((u) => u.metric_id === m.id);
+    const mUpdates = updates.filter((u) => u.metric_id === m.id && inRange(u.period));
     const byPeriod = new Map<string, number[]>();
     const byCategory = new Map<string, number[]>();
     for (const u of mUpdates) {
