@@ -14,7 +14,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Progress } from "@/components/ui/progress";
 
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
-import { TrendingUp, TrendingDown, LayoutDashboard, Plus } from "lucide-react";
+import { TrendingUp, TrendingDown, LayoutDashboard, Plus, CalendarIcon, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import type { DateRange } from "react-day-picker";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/c/$clientId/overview")({
@@ -31,6 +36,17 @@ function Overview() {
   const [widgets, setWidgets] = useState<DashboardWidget[]>([]);
   const [dataRows, setDataRows] = useState<DataRow[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  function inRange(dateStr: string | undefined | null): boolean {
+    if (!dateRange?.from && !dateRange?.to) return true;
+    if (!dateStr) return true;
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return true;
+    if (dateRange.from && d < dateRange.from) return false;
+    if (dateRange.to && d > dateRange.to) return false;
+    return true;
+  }
 
   useEffect(() => {
     (async () => {
@@ -95,6 +111,7 @@ function Overview() {
       const byCategory = new Map<string, number[]>();
       const allValues: number[] = [];
       for (const r of rows) {
+        if (periodKey && !inRange(String(r.row_data[periodKey] ?? ""))) continue;
         const raw = r.row_data[m.field];
         const num = typeof raw === "number" ? raw : Number(String(raw ?? "").replace(/[^0-9.\-]/g, ""));
         if (!Number.isFinite(num)) continue;
@@ -128,7 +145,7 @@ function Overview() {
     }
 
     // Manual-update-backed metric
-    const mUpdates = updates.filter((u) => u.metric_id === m.id);
+    const mUpdates = updates.filter((u) => u.metric_id === m.id && inRange(u.period));
     const byPeriod = new Map<string, number[]>();
     const byCategory = new Map<string, number[]>();
     for (const u of mUpdates) {
@@ -177,11 +194,45 @@ function Overview() {
               {widgets.length ? "Your custom dashboard — edit widgets in the builder." : "Showing all metrics. Open the Dashboard Builder to customize what appears here."}
             </p>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/c/$clientId/dashboard-builder" params={{ clientId }}>
-              <LayoutDashboard className="mr-1.5 h-4 w-4" />Customize dashboard
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn("justify-start text-left font-normal", !dateRange && "text-muted-foreground")}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to
+                      ? `${format(dateRange.from, "LLL d, y")} – ${format(dateRange.to, "LLL d, y")}`
+                      : format(dateRange.from, "LLL d, y")
+                  ) : (
+                    <span>All time</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            {dateRange && (
+              <Button variant="ghost" size="icon" onClick={() => setDateRange(undefined)} title="Clear date range">
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button variant="outline" asChild>
+              <Link to="/c/$clientId/dashboard-builder" params={{ clientId }}>
+                <LayoutDashboard className="mr-1.5 h-4 w-4" />Customize dashboard
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {items.length === 0 && (
