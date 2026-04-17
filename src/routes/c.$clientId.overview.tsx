@@ -80,13 +80,20 @@ function Overview() {
     }
   }
 
-  function compute(m: Metric): { current: number; prev: number; series: { period: string; value: number }[] } {
+  function compute(m: Metric): {
+    current: number; prev: number;
+    series: { period: string; value: number }[];
+    breakdown: { name: string; value: number }[];
+  } {
     // Source-backed metric: aggregate from uploaded rows, grouped by period field if present
     if (m.data_source_id && m.field) {
       const rows = dataRows.filter((r) => r.data_source_id === m.data_source_id);
-      const periodKey = (m.filters as { period_field?: string } | null)?.period_field;
+      const filters = (m.filters as { period_field?: string; category_field?: string } | null) ?? {};
+      const periodKey = filters.period_field;
+      const categoryKey = filters.category_field;
       const byPeriod = new Map<string, number[]>();
-      let allValues: number[] = [];
+      const byCategory = new Map<string, number[]>();
+      const allValues: number[] = [];
       for (const r of rows) {
         const raw = r.row_data[m.field];
         const num = typeof raw === "number" ? raw : Number(String(raw ?? "").replace(/[^0-9.\-]/g, ""));
@@ -100,29 +107,49 @@ function Overview() {
             byPeriod.set(p, arr);
           }
         }
+        if (categoryKey) {
+          const c = String(r.row_data[categoryKey] ?? "").trim();
+          if (c) {
+            const arr = byCategory.get(c) ?? [];
+            arr.push(num);
+            byCategory.set(c, arr);
+          }
+        }
       }
       const series = Array.from(byPeriod.entries())
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([period, vals]) => ({ period, value: aggregateValues(vals, m.aggregation ?? "sum") }));
+      const breakdown = Array.from(byCategory.entries())
+        .map(([name, vals]) => ({ name, value: aggregateValues(vals, m.aggregation ?? "sum") }))
+        .sort((a, b) => b.value - a.value);
       const current = series.length ? series[series.length - 1].value : aggregateValues(allValues, m.aggregation ?? "sum");
       const prev = series.length > 1 ? series[series.length - 2].value : current;
-      return { current, prev, series };
+      return { current, prev, series, breakdown };
     }
 
     // Manual-update-backed metric
     const mUpdates = updates.filter((u) => u.metric_id === m.id);
     const byPeriod = new Map<string, number[]>();
+    const byCategory = new Map<string, number[]>();
     for (const u of mUpdates) {
       const arr = byPeriod.get(u.period) ?? [];
       arr.push(Number(u.value));
       byPeriod.set(u.period, arr);
+      if (u.category) {
+        const c = byCategory.get(u.category) ?? [];
+        c.push(Number(u.value));
+        byCategory.set(u.category, c);
+      }
     }
     const series = Array.from(byPeriod.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([period, vals]) => ({ period: period.slice(0, 7), value: aggregateValues(vals, m.aggregation ?? "sum") }));
+    const breakdown = Array.from(byCategory.entries())
+      .map(([name, vals]) => ({ name, value: aggregateValues(vals, m.aggregation ?? "sum") }))
+      .sort((a, b) => b.value - a.value);
     const current = series.length ? series[series.length - 1].value : 0;
     const prev = series.length > 1 ? series[series.length - 2].value : current;
-    return { current, prev, series };
+    return { current, prev, series, breakdown };
   }
 
   const metricById = (id: string | null) => metrics.find((m) => m.id === id);
