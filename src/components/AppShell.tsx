@@ -57,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (!clientId) return;
     supabase.from("clients").select("*").eq("id", clientId).maybeSingle().then(({ data }) => {
       setClient(data as Client | null);
-      if (data?.brand_color) document.documentElement.style.setProperty("--brand-accent", data.brand_color);
+      applyBrandTheme(data?.brand_color);
     });
     if (user) {
       supabase
@@ -68,6 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         .eq("read", false)
         .then(({ count }) => setUnread(count ?? 0));
     }
+    return () => applyBrandTheme(null); // restore defaults on unmount/switch
   }, [clientId, user]);
 
   const handleSignOut = async () => {
