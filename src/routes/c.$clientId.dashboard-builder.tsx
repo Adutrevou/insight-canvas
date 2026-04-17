@@ -98,7 +98,17 @@ function DashboardBuilder() {
             <Select value={pickType} onValueChange={setPickType}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {["kpi", "line", "bar"].map((t) => <SelectItem key={t} value={t}>{t.toUpperCase()}</SelectItem>)}
+                {[
+                  { v: "kpi", l: "KPI Card" },
+                  { v: "line", l: "Line Chart" },
+                  { v: "bar", l: "Bar Chart" },
+                  { v: "area", l: "Area Chart" },
+                  { v: "pie", l: "Pie Chart" },
+                  { v: "donut", l: "Donut Chart" },
+                  { v: "gauge", l: "Gauge / Progress" },
+                  { v: "table", l: "Data Table" },
+                  { v: "stat-list", l: "Breakdown List" },
+                ].map((t) => <SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
