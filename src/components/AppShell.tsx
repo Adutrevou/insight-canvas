@@ -45,7 +45,51 @@ const settingsItems = (clientId: string) => [
   { to: `/c/${clientId}/settings/users`, label: "Users", icon: Users },
 ];
 
-export function AppShell({ children }: { children: ReactNode }) {
+const BRAND_VARS = ["--brand-accent", "--primary", "--ring", "--sidebar-primary", "--sidebar-ring",
+  "--chart-1", "--chart-2", "--chart-3", "--chart-4", "--chart-5"] as const;
+
+function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!m) return null;
+  const r = parseInt(m[1], 16) / 255, g = parseInt(m[2], 16) / 255, b = parseInt(m[3], 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0, s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)); break;
+      case g: h = ((b - r) / d + 2); break;
+      case b: h = ((r - g) / d + 4); break;
+    }
+    h *= 60;
+  }
+  return { h, s: s * 100, l: l * 100 };
+}
+
+function applyBrandTheme(brand: string | null | undefined) {
+  const root = document.documentElement;
+  if (!brand) {
+    BRAND_VARS.forEach((v) => root.style.removeProperty(v));
+    return;
+  }
+  const hsl = hexToHsl(brand);
+  if (!hsl) return;
+  const { h, s } = hsl;
+  // Use brand color as-is for accents; derive a 5-color chart palette by rotating hue.
+  root.style.setProperty("--brand-accent", brand);
+  const primary = `hsl(${h} ${Math.min(85, s)}% 50%)`;
+  root.style.setProperty("--primary", primary);
+  root.style.setProperty("--ring", primary);
+  root.style.setProperty("--sidebar-primary", primary);
+  root.style.setProperty("--sidebar-ring", primary);
+  const offsets = [0, 40, -40, 80, -80];
+  offsets.forEach((off, i) => {
+    const hue = (h + off + 360) % 360;
+    root.style.setProperty(`--chart-${i + 1}`, `hsl(${hue} ${Math.min(80, Math.max(45, s))}% ${50 - i * 4}%)`);
+  });
+}
   const params = useParams({ strict: false }) as { clientId?: string };
   const clientId = params.clientId!;
   const { user, isSuperAdmin, signOut } = useAuth();
