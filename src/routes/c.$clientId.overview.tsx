@@ -239,8 +239,96 @@ function Overview() {
                 <LayoutDashboard className="mr-1.5 h-4 w-4" />Customize dashboard
               </Link>
             </Button>
+            <Button onClick={() => setAiOpen((v) => !v)}>
+              <Sparkles className="mr-1.5 h-4 w-4" />Ask AI
+            </Button>
           </div>
         </div>
+
+        {aiOpen && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Sparkles className="h-4 w-4 text-primary" />Ask AI about your data
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!aiQuestion.trim() || aiLoading) return;
+                  setAiLoading(true);
+                  setAiAnswer(null);
+                  try {
+                    const contextPayload = items.map(({ metric: m, widget_type }) => {
+                      const { current, prev, series, breakdown } = compute(m);
+                      return {
+                        name: m.name,
+                        format: m.format,
+                        widget: widget_type,
+                        target: m.target,
+                        current,
+                        previous: prev,
+                        change_pct: prev ? ((current - prev) / Math.abs(prev)) * 100 : null,
+                        series: series.slice(-24),
+                        breakdown: breakdown.slice(0, 20),
+                      };
+                    });
+                    const { data, error } = await supabase.functions.invoke("ask-ai", {
+                      body: {
+                        question: aiQuestion,
+                        context: {
+                          date_range: dateRange?.from
+                            ? { from: dateRange.from.toISOString().slice(0, 10), to: dateRange.to?.toISOString().slice(0, 10) ?? null }
+                            : "all time",
+                          metrics: contextPayload,
+                        },
+                      },
+                    });
+                    if (error) throw error;
+                    if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+                    setAiAnswer((data as { answer: string }).answer);
+                  } catch (err) {
+                    const msg = err instanceof Error ? err.message : "Failed to get answer";
+                    toast.error(msg);
+                  } finally {
+                    setAiLoading(false);
+                  }
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  placeholder="e.g. Which category drove the biggest change last period?"
+                  disabled={aiLoading}
+                />
+                <Button type="submit" disabled={aiLoading || !aiQuestion.trim()}>
+                  {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </form>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "Summarize the key trends",
+                  "Which metric is furthest from its target?",
+                  "What's the biggest change vs the previous period?",
+                ].map((q) => (
+                  <Button key={q} type="button" variant="outline" size="sm" onClick={() => setAiQuestion(q)} disabled={aiLoading}>
+                    {q}
+                  </Button>
+                ))}
+              </div>
+              {aiAnswer && (
+                <div className="rounded-md border bg-muted/30 p-4 text-sm prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{aiAnswer}</ReactMarkdown>
+                </div>
+              )}
+              {items.length === 0 && (
+                <p className="text-xs text-muted-foreground">Add metrics first so the AI has data to reason about.</p>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {items.length === 0 && (
           <Card>
