@@ -40,6 +40,10 @@ function Overview() {
   const [dataRows, setDataRows] = useState<DataRow[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiAnswer, setAiAnswer] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   function inRange(dateStr: string | undefined | null): boolean {
     if (!dateRange?.from && !dateRange?.to) return true;
