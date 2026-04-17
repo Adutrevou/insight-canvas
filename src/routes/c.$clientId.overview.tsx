@@ -111,6 +111,7 @@ function Overview() {
       const byCategory = new Map<string, number[]>();
       const allValues: number[] = [];
       for (const r of rows) {
+        if (periodKey && !inRange(String(r.row_data[periodKey] ?? ""))) continue;
         const raw = r.row_data[m.field];
         const num = typeof raw === "number" ? raw : Number(String(raw ?? "").replace(/[^0-9.\-]/g, ""));
         if (!Number.isFinite(num)) continue;
