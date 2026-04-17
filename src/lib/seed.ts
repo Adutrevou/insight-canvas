@@ -42,7 +42,14 @@ export async function seedDemoClient(userId: string) {
 
   // 12 months × 3 categories of manual updates per metric
   if (metrics) {
-    const updates: Array<Record<string, unknown>> = [];
+    const updates: Array<{
+      client_id: string;
+      metric_id: string;
+      value: number;
+      period: string;
+      category: string;
+      user_id: string;
+    }> = [];
     const now = new Date();
     for (const m of metrics) {
       const def = METRIC_DEFS.find((d) => d.name === m.name)!;

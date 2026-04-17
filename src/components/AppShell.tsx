@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import type { Client } from "@/integrations/supabase/types";
+import type { Client } from "@/lib/db-types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
