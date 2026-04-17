@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useAuth } from "@/lib/auth-context";
 import type { Metric, ManualUpdate } from "@/lib/db-types";
 import { toast } from "sonner";
+import { evaluateAlertsForMetric } from "@/lib/alerts";
 
 export const Route = createFileRoute("/c/$clientId/updates")({ component: UpdatesPage });
 
@@ -36,10 +37,11 @@ function UpdatesPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!user || !form.metric_id) return;
+    const value = Number(form.value);
     const { error } = await supabase.from("manual_updates").insert({
       client_id: clientId,
       metric_id: form.metric_id,
-      value: Number(form.value),
+      value,
       period: form.period,
       category: form.category || null,
       note: form.note || null,
@@ -52,9 +54,10 @@ function UpdatesPage() {
       action: "manual_update",
       entity: "metric",
       entity_id: form.metric_id,
-      diff: { value: Number(form.value), period: form.period },
+      diff: { value, period: form.period },
     });
-    toast.success("Update saved");
+    const triggered = await evaluateAlertsForMetric({ clientId, metricId: form.metric_id, newValue: value, userId: user.id });
+    toast.success(triggered.length ? `Update saved · ${triggered.length} alert(s) triggered` : "Update saved");
     setForm({ ...form, value: "", note: "" });
     load();
   }
@@ -63,7 +66,7 @@ function UpdatesPage() {
     <AppShell>
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Manual Updates</h1>
-        <p className="text-sm text-muted-foreground">Enter individual metric values without touching the raw data.</p>
+        <p className="text-sm text-muted-foreground">Enter individual metric values. Alert rules evaluate on save.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
