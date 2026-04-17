@@ -6,7 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatValue } from "@/lib/format";
 import type { Dashboard, DashboardWidget, Metric, ManualUpdate } from "@/lib/db-types";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import {
+  LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell,
+  RadialBarChart, RadialBar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, Legend,
+} from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+
+const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 import { TrendingUp, TrendingDown, LayoutDashboard, Plus } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
