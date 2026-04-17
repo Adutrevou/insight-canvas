@@ -1,8 +1,6 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -23,43 +21,6 @@ function NotFoundComponent() {
   );
 }
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Integrai - White-label Business Dashboards" },
-      { name: "description", content: "Configurable multi-tenant business intelligence platform with custom metrics, dashboards, alerts and reports." },
-      { property: "og:title", content: "Integrai - White-label Business Dashboards" },
-      { name: "twitter:title", content: "Integrai - White-label Business Dashboards" },
-      { property: "og:description", content: "Configurable multi-tenant business intelligence platform with custom metrics, dashboards, alerts and reports." },
-      { name: "twitter:description", content: "Configurable multi-tenant business intelligence platform with custom metrics, dashboards, alerts and reports." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/DjVwXhIqtjVoOvd3jyZMC6PFkvw1/social-images/social-1776423571247-IntergrAI_Logo_.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/DjVwXhIqtjVoOvd3jyZMC6PFkvw1/social-images/social-1776423571247-IntergrAI_Logo_.webp" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:type", content: "website" },
-    ],
-    links: [{ rel: "stylesheet", href: appCss }],
-  }),
-  shellComponent: RootShell,
-  component: RootComponent,
-  notFoundComponent: NotFoundComponent,
-});
-
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
 function RootComponent() {
   return (
     <AuthProvider>
@@ -68,3 +29,8 @@ function RootComponent() {
     </AuthProvider>
   );
 }
+
+export const Route = createRootRoute({
+  component: RootComponent,
+  notFoundComponent: NotFoundComponent,
+});

@@ -55,6 +55,7 @@
     "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",
+    "lovable-tagger": "^1.1.13",
     "lucide-react": "^0.575.0",
     "papaparse": "^5.5.3",
     "react": "^19.2.0",
