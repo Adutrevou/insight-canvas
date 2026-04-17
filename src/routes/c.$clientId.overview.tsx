@@ -36,6 +36,17 @@ function Overview() {
   const [widgets, setWidgets] = useState<DashboardWidget[]>([]);
   const [dataRows, setDataRows] = useState<DataRow[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  function inRange(dateStr: string | undefined | null): boolean {
+    if (!dateRange?.from && !dateRange?.to) return true;
+    if (!dateStr) return true;
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return true;
+    if (dateRange.from && d < dateRange.from) return false;
+    if (dateRange.to && d > dateRange.to) return false;
+    return true;
+  }
 
   useEffect(() => {
     (async () => {
