@@ -194,11 +194,45 @@ function Overview() {
               {widgets.length ? "Your custom dashboard — edit widgets in the builder." : "Showing all metrics. Open the Dashboard Builder to customize what appears here."}
             </p>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/c/$clientId/dashboard-builder" params={{ clientId }}>
-              <LayoutDashboard className="mr-1.5 h-4 w-4" />Customize dashboard
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn("justify-start text-left font-normal", !dateRange && "text-muted-foreground")}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to
+                      ? `${format(dateRange.from, "LLL d, y")} – ${format(dateRange.to, "LLL d, y")}`
+                      : format(dateRange.from, "LLL d, y")
+                  ) : (
+                    <span>All time</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            {dateRange && (
+              <Button variant="ghost" size="icon" onClick={() => setDateRange(undefined)} title="Clear date range">
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button variant="outline" asChild>
+              <Link to="/c/$clientId/dashboard-builder" params={{ clientId }}>
+                <LayoutDashboard className="mr-1.5 h-4 w-4" />Customize dashboard
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {items.length === 0 && (
