@@ -23,6 +23,7 @@ import { Route as CClientIdDashboardBuilderRouteImport } from './routes/c.$clien
 import { Route as CClientIdAlertsRouteImport } from './routes/c.$clientId.alerts'
 import { Route as CClientIdSettingsUsersRouteImport } from './routes/c.$clientId.settings.users'
 import { Route as CClientIdSettingsBrandingRouteImport } from './routes/c.$clientId.settings.branding'
+import { Route as CClientIdDataSourcesSourceIdRouteImport } from './routes/c.$clientId.data-sources.$sourceId'
 
 const SelectClientRoute = SelectClientRouteImport.update({
   id: '/select-client',
@@ -96,6 +97,12 @@ const CClientIdSettingsBrandingRoute =
     path: '/c/$clientId/settings/branding',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CClientIdDataSourcesSourceIdRoute =
+  CClientIdDataSourcesSourceIdRouteImport.update({
+    id: '/$sourceId',
+    path: '/$sourceId',
+    getParentRoute: () => CClientIdDataSourcesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -104,12 +111,13 @@ export interface FileRoutesByFullPath {
   '/super-admin/clients': typeof SuperAdminClientsRoute
   '/c/$clientId/alerts': typeof CClientIdAlertsRoute
   '/c/$clientId/dashboard-builder': typeof CClientIdDashboardBuilderRoute
-  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRoute
+  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRouteWithChildren
   '/c/$clientId/metrics': typeof CClientIdMetricsRoute
   '/c/$clientId/onboarding': typeof CClientIdOnboardingRoute
   '/c/$clientId/overview': typeof CClientIdOverviewRoute
   '/c/$clientId/reports': typeof CClientIdReportsRoute
   '/c/$clientId/updates': typeof CClientIdUpdatesRoute
+  '/c/$clientId/data-sources/$sourceId': typeof CClientIdDataSourcesSourceIdRoute
   '/c/$clientId/settings/branding': typeof CClientIdSettingsBrandingRoute
   '/c/$clientId/settings/users': typeof CClientIdSettingsUsersRoute
 }
@@ -120,12 +128,13 @@ export interface FileRoutesByTo {
   '/super-admin/clients': typeof SuperAdminClientsRoute
   '/c/$clientId/alerts': typeof CClientIdAlertsRoute
   '/c/$clientId/dashboard-builder': typeof CClientIdDashboardBuilderRoute
-  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRoute
+  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRouteWithChildren
   '/c/$clientId/metrics': typeof CClientIdMetricsRoute
   '/c/$clientId/onboarding': typeof CClientIdOnboardingRoute
   '/c/$clientId/overview': typeof CClientIdOverviewRoute
   '/c/$clientId/reports': typeof CClientIdReportsRoute
   '/c/$clientId/updates': typeof CClientIdUpdatesRoute
+  '/c/$clientId/data-sources/$sourceId': typeof CClientIdDataSourcesSourceIdRoute
   '/c/$clientId/settings/branding': typeof CClientIdSettingsBrandingRoute
   '/c/$clientId/settings/users': typeof CClientIdSettingsUsersRoute
 }
@@ -137,12 +146,13 @@ export interface FileRoutesById {
   '/super-admin/clients': typeof SuperAdminClientsRoute
   '/c/$clientId/alerts': typeof CClientIdAlertsRoute
   '/c/$clientId/dashboard-builder': typeof CClientIdDashboardBuilderRoute
-  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRoute
+  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRouteWithChildren
   '/c/$clientId/metrics': typeof CClientIdMetricsRoute
   '/c/$clientId/onboarding': typeof CClientIdOnboardingRoute
   '/c/$clientId/overview': typeof CClientIdOverviewRoute
   '/c/$clientId/reports': typeof CClientIdReportsRoute
   '/c/$clientId/updates': typeof CClientIdUpdatesRoute
+  '/c/$clientId/data-sources/$sourceId': typeof CClientIdDataSourcesSourceIdRoute
   '/c/$clientId/settings/branding': typeof CClientIdSettingsBrandingRoute
   '/c/$clientId/settings/users': typeof CClientIdSettingsUsersRoute
 }
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/c/$clientId/overview'
     | '/c/$clientId/reports'
     | '/c/$clientId/updates'
+    | '/c/$clientId/data-sources/$sourceId'
     | '/c/$clientId/settings/branding'
     | '/c/$clientId/settings/users'
   fileRoutesByTo: FileRoutesByTo
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/c/$clientId/overview'
     | '/c/$clientId/reports'
     | '/c/$clientId/updates'
+    | '/c/$clientId/data-sources/$sourceId'
     | '/c/$clientId/settings/branding'
     | '/c/$clientId/settings/users'
   id:
@@ -193,6 +205,7 @@ export interface FileRouteTypes {
     | '/c/$clientId/overview'
     | '/c/$clientId/reports'
     | '/c/$clientId/updates'
+    | '/c/$clientId/data-sources/$sourceId'
     | '/c/$clientId/settings/branding'
     | '/c/$clientId/settings/users'
   fileRoutesById: FileRoutesById
@@ -204,7 +217,7 @@ export interface RootRouteChildren {
   SuperAdminClientsRoute: typeof SuperAdminClientsRoute
   CClientIdAlertsRoute: typeof CClientIdAlertsRoute
   CClientIdDashboardBuilderRoute: typeof CClientIdDashboardBuilderRoute
-  CClientIdDataSourcesRoute: typeof CClientIdDataSourcesRoute
+  CClientIdDataSourcesRoute: typeof CClientIdDataSourcesRouteWithChildren
   CClientIdMetricsRoute: typeof CClientIdMetricsRoute
   CClientIdOnboardingRoute: typeof CClientIdOnboardingRoute
   CClientIdOverviewRoute: typeof CClientIdOverviewRoute
@@ -314,8 +327,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CClientIdSettingsBrandingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c/$clientId/data-sources/$sourceId': {
+      id: '/c/$clientId/data-sources/$sourceId'
+      path: '/$sourceId'
+      fullPath: '/c/$clientId/data-sources/$sourceId'
+      preLoaderRoute: typeof CClientIdDataSourcesSourceIdRouteImport
+      parentRoute: typeof CClientIdDataSourcesRoute
+    }
   }
 }
+
+interface CClientIdDataSourcesRouteChildren {
+  CClientIdDataSourcesSourceIdRoute: typeof CClientIdDataSourcesSourceIdRoute
+}
+
+const CClientIdDataSourcesRouteChildren: CClientIdDataSourcesRouteChildren = {
+  CClientIdDataSourcesSourceIdRoute: CClientIdDataSourcesSourceIdRoute,
+}
+
+const CClientIdDataSourcesRouteWithChildren =
+  CClientIdDataSourcesRoute._addFileChildren(CClientIdDataSourcesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -324,7 +355,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAdminClientsRoute: SuperAdminClientsRoute,
   CClientIdAlertsRoute: CClientIdAlertsRoute,
   CClientIdDashboardBuilderRoute: CClientIdDashboardBuilderRoute,
-  CClientIdDataSourcesRoute: CClientIdDataSourcesRoute,
+  CClientIdDataSourcesRoute: CClientIdDataSourcesRouteWithChildren,
   CClientIdMetricsRoute: CClientIdMetricsRoute,
   CClientIdOnboardingRoute: CClientIdOnboardingRoute,
   CClientIdOverviewRoute: CClientIdOverviewRoute,
@@ -336,3 +367,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
