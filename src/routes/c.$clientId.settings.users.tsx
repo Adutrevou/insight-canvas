@@ -26,7 +26,7 @@ function UsersPage() {
   const [role, setRole] = useState<AppRole>("user");
   const [busy, setBusy] = useState(false);
 
-  const load = () => supabase.from("client_members").select("*").eq("client_id", clientId).then(({ data }) => setMembers((data ?? []) as MemberRow[]));
+  const load = () => { supabase.from("client_members").select("*").eq("client_id", clientId).then(({ data }) => setMembers((data ?? []) as MemberRow[])); };
   useEffect(load, [clientId]);
 
   async function invite(e: FormEvent) {
