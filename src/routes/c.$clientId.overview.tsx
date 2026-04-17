@@ -12,13 +12,16 @@ import {
 } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, TrendingDown, LayoutDashboard, Plus, CalendarIcon, X } from "lucide-react";
+import { TrendingUp, TrendingDown, LayoutDashboard, Plus, CalendarIcon, X, Sparkles, Loader2, Send } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
 import { useAuth } from "@/lib/auth-context";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 
