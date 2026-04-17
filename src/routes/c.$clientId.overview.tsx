@@ -6,7 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatValue } from "@/lib/format";
 import type { Dashboard, DashboardWidget, Metric, ManualUpdate } from "@/lib/db-types";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import {
+  LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell,
+  RadialBarChart, RadialBar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, Legend,
+} from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+
+const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 import { TrendingUp, TrendingDown, LayoutDashboard, Plus } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -73,13 +80,20 @@ function Overview() {
     }
   }
 
-  function compute(m: Metric): { current: number; prev: number; series: { period: string; value: number }[] } {
+  function compute(m: Metric): {
+    current: number; prev: number;
+    series: { period: string; value: number }[];
+    breakdown: { name: string; value: number }[];
+  } {
     // Source-backed metric: aggregate from uploaded rows, grouped by period field if present
     if (m.data_source_id && m.field) {
       const rows = dataRows.filter((r) => r.data_source_id === m.data_source_id);
-      const periodKey = (m.filters as { period_field?: string } | null)?.period_field;
+      const filters = (m.filters as { period_field?: string; category_field?: string } | null) ?? {};
+      const periodKey = filters.period_field;
+      const categoryKey = filters.category_field;
       const byPeriod = new Map<string, number[]>();
-      let allValues: number[] = [];
+      const byCategory = new Map<string, number[]>();
+      const allValues: number[] = [];
       for (const r of rows) {
         const raw = r.row_data[m.field];
         const num = typeof raw === "number" ? raw : Number(String(raw ?? "").replace(/[^0-9.\-]/g, ""));
@@ -93,29 +107,49 @@ function Overview() {
             byPeriod.set(p, arr);
           }
         }
+        if (categoryKey) {
+          const c = String(r.row_data[categoryKey] ?? "").trim();
+          if (c) {
+            const arr = byCategory.get(c) ?? [];
+            arr.push(num);
+            byCategory.set(c, arr);
+          }
+        }
       }
       const series = Array.from(byPeriod.entries())
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([period, vals]) => ({ period, value: aggregateValues(vals, m.aggregation ?? "sum") }));
+      const breakdown = Array.from(byCategory.entries())
+        .map(([name, vals]) => ({ name, value: aggregateValues(vals, m.aggregation ?? "sum") }))
+        .sort((a, b) => b.value - a.value);
       const current = series.length ? series[series.length - 1].value : aggregateValues(allValues, m.aggregation ?? "sum");
       const prev = series.length > 1 ? series[series.length - 2].value : current;
-      return { current, prev, series };
+      return { current, prev, series, breakdown };
     }
 
     // Manual-update-backed metric
     const mUpdates = updates.filter((u) => u.metric_id === m.id);
     const byPeriod = new Map<string, number[]>();
+    const byCategory = new Map<string, number[]>();
     for (const u of mUpdates) {
       const arr = byPeriod.get(u.period) ?? [];
       arr.push(Number(u.value));
       byPeriod.set(u.period, arr);
+      if (u.category) {
+        const c = byCategory.get(u.category) ?? [];
+        c.push(Number(u.value));
+        byCategory.set(u.category, c);
+      }
     }
     const series = Array.from(byPeriod.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([period, vals]) => ({ period: period.slice(0, 7), value: aggregateValues(vals, m.aggregation ?? "sum") }));
+    const breakdown = Array.from(byCategory.entries())
+      .map(([name, vals]) => ({ name, value: aggregateValues(vals, m.aggregation ?? "sum") }))
+      .sort((a, b) => b.value - a.value);
     const current = series.length ? series[series.length - 1].value : 0;
     const prev = series.length > 1 ? series[series.length - 2].value : current;
-    return { current, prev, series };
+    return { current, prev, series, breakdown };
   }
 
   const metricById = (id: string | null) => metrics.find((m) => m.id === id);
@@ -192,33 +226,129 @@ function Overview() {
         {charts.length > 0 && (
           <div className="grid gap-4 lg:grid-cols-2">
             {charts.map(({ id, metric: m, widget_type }) => {
-              const { series } = compute(m);
+              const { series, breakdown, current } = compute(m);
+              const pieData = breakdown.length ? breakdown : series.map((s) => ({ name: s.period, value: s.value }));
+              const hasSeries = series.length > 0;
+              const hasBreakdown = pieData.length > 0;
+              const target = m.target ? Number(m.target) : 0;
+              const pct = target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : Math.min(100, Math.max(0, current));
+
               return (
                 <Card key={id}>
                   <CardHeader className="pb-2"><CardTitle className="text-base">{m.name}</CardTitle></CardHeader>
                   <CardContent>
-                    {series.length === 0 ? (
-                      <div className="py-8 text-center text-sm text-muted-foreground">No data points yet.</div>
-                    ) : (
-                      <ResponsiveContainer width="100%" height={220}>
-                        {widget_type === "bar" ? (
-                          <BarChart data={series}>
-                            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                            <XAxis dataKey="period" fontSize={11} />
-                            <YAxis fontSize={11} />
-                            <Tooltip />
-                            <Bar dataKey="value" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
-                          </BarChart>
-                        ) : (
-                          <LineChart data={series}>
-                            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                            <XAxis dataKey="period" fontSize={11} />
-                            <YAxis fontSize={11} />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="value" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
-                          </LineChart>
-                        )}
+                    {widget_type === "bar" && hasSeries && (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <BarChart data={series}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <XAxis dataKey="period" fontSize={11} />
+                          <YAxis fontSize={11} />
+                          <Tooltip />
+                          <Bar dataKey="value" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                        </BarChart>
                       </ResponsiveContainer>
+                    )}
+                    {widget_type === "line" && hasSeries && (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <LineChart data={series}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <XAxis dataKey="period" fontSize={11} />
+                          <YAxis fontSize={11} />
+                          <Tooltip />
+                          <Line type="monotone" dataKey="value" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
+                    {widget_type === "area" && hasSeries && (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <AreaChart data={series}>
+                          <defs>
+                            <linearGradient id={`grad-${id}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <XAxis dataKey="period" fontSize={11} />
+                          <YAxis fontSize={11} />
+                          <Tooltip />
+                          <Area type="monotone" dataKey="value" stroke="var(--chart-1)" strokeWidth={2} fill={`url(#grad-${id})`} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )}
+                    {(widget_type === "pie" || widget_type === "donut") && hasBreakdown && (
+                      <ResponsiveContainer width="100%" height={260}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={90}
+                            innerRadius={widget_type === "donut" ? 55 : 0}
+                            paddingAngle={2}
+                          >
+                            {pieData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                          </Pie>
+                          <Tooltip />
+                          <Legend wrapperStyle={{ fontSize: 11 }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    )}
+                    {widget_type === "gauge" && (
+                      <div className="space-y-3 py-2">
+                        <ResponsiveContainer width="100%" height={180}>
+                          <RadialBarChart innerRadius="70%" outerRadius="100%" data={[{ name: m.name, value: pct, fill: "var(--chart-1)" }]} startAngle={210} endAngle={-30}>
+                            <RadialBar background dataKey="value" cornerRadius={8} />
+                          </RadialBarChart>
+                        </ResponsiveContainer>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold">{formatValue(current, m.format ?? "number")}</div>
+                          {target > 0 && <div className="text-xs text-muted-foreground">{pct.toFixed(0)}% of target ({formatValue(target, m.format ?? "number")})</div>}
+                        </div>
+                        <Progress value={pct} />
+                      </div>
+                    )}
+                    {widget_type === "table" && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{breakdown.length ? "Category" : "Period"}</TableHead>
+                            <TableHead className="text-right">Value</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {(breakdown.length ? breakdown : series.map((s) => ({ name: s.period, value: s.value }))).map((row, i) => (
+                            <TableRow key={i}>
+                              <TableCell>{row.name}</TableCell>
+                              <TableCell className="text-right font-mono">{formatValue(row.value, m.format ?? "number")}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                    {widget_type === "stat-list" && hasBreakdown && (
+                      <div className="space-y-2">
+                        {pieData.slice(0, 8).map((row, i) => {
+                          const max = Math.max(...pieData.map((p) => p.value));
+                          const w = max > 0 ? (row.value / max) * 100 : 0;
+                          return (
+                            <div key={i} className="space-y-1">
+                              <div className="flex justify-between text-sm">
+                                <span className="font-medium">{row.name}</span>
+                                <span className="font-mono text-muted-foreground">{formatValue(row.value, m.format ?? "number")}</span>
+                              </div>
+                              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                                <div className="h-full rounded-full" style={{ width: `${w}%`, background: CHART_COLORS[i % CHART_COLORS.length] }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {!hasSeries && !hasBreakdown && widget_type !== "gauge" && (
+                      <div className="py-8 text-center text-sm text-muted-foreground">No data points yet.</div>
                     )}
                   </CardContent>
                 </Card>
