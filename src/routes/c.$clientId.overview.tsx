@@ -65,7 +65,7 @@ function Overview() {
               <Card key={m.id}>
                 <CardContent className="p-5">
                   <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{m.name}</div>
-                  <div className="mt-2 text-3xl font-bold">{formatValue(current, m.format)}</div>
+                  <div className="mt-2 text-3xl font-bold">{formatValue(current, m.format ?? "number")}</div>
                   <div className="mt-1 flex items-center gap-1 text-xs">
                     {delta >= 0 ? (
                       <TrendingUp className="h-3 w-3 text-emerald-600" />

@@ -21,7 +21,7 @@ function DataSourcesPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = () => supabase.from("data_sources").select("*").eq("client_id", clientId).order("created_at", { ascending: false }).then(({ data }) => setSources((data ?? []) as DataSource[]));
-  useEffect(load, [clientId]);
+  useEffect(() => { load(); }, [clientId]);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

@@ -9,38 +9,227 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SelectClientRouteImport } from './routes/select-client'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SuperAdminClientsRouteImport } from './routes/super-admin.clients'
+import { Route as CClientIdUpdatesRouteImport } from './routes/c.$clientId.updates'
+import { Route as CClientIdReportsRouteImport } from './routes/c.$clientId.reports'
+import { Route as CClientIdOverviewRouteImport } from './routes/c.$clientId.overview'
+import { Route as CClientIdOnboardingRouteImport } from './routes/c.$clientId.onboarding'
+import { Route as CClientIdMetricsRouteImport } from './routes/c.$clientId.metrics'
+import { Route as CClientIdDataSourcesRouteImport } from './routes/c.$clientId.data-sources'
+import { Route as CClientIdDashboardBuilderRouteImport } from './routes/c.$clientId.dashboard-builder'
+import { Route as CClientIdAlertsRouteImport } from './routes/c.$clientId.alerts'
+import { Route as CClientIdSettingsUsersRouteImport } from './routes/c.$clientId.settings.users'
+import { Route as CClientIdSettingsBrandingRouteImport } from './routes/c.$clientId.settings.branding'
 
+const SelectClientRoute = SelectClientRouteImport.update({
+  id: '/select-client',
+  path: '/select-client',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperAdminClientsRoute = SuperAdminClientsRouteImport.update({
+  id: '/super-admin/clients',
+  path: '/super-admin/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdUpdatesRoute = CClientIdUpdatesRouteImport.update({
+  id: '/c/$clientId/updates',
+  path: '/c/$clientId/updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdReportsRoute = CClientIdReportsRouteImport.update({
+  id: '/c/$clientId/reports',
+  path: '/c/$clientId/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdOverviewRoute = CClientIdOverviewRouteImport.update({
+  id: '/c/$clientId/overview',
+  path: '/c/$clientId/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdOnboardingRoute = CClientIdOnboardingRouteImport.update({
+  id: '/c/$clientId/onboarding',
+  path: '/c/$clientId/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdMetricsRoute = CClientIdMetricsRouteImport.update({
+  id: '/c/$clientId/metrics',
+  path: '/c/$clientId/metrics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdDataSourcesRoute = CClientIdDataSourcesRouteImport.update({
+  id: '/c/$clientId/data-sources',
+  path: '/c/$clientId/data-sources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdDashboardBuilderRoute =
+  CClientIdDashboardBuilderRouteImport.update({
+    id: '/c/$clientId/dashboard-builder',
+    path: '/c/$clientId/dashboard-builder',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CClientIdAlertsRoute = CClientIdAlertsRouteImport.update({
+  id: '/c/$clientId/alerts',
+  path: '/c/$clientId/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdSettingsUsersRoute = CClientIdSettingsUsersRouteImport.update({
+  id: '/c/$clientId/settings/users',
+  path: '/c/$clientId/settings/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CClientIdSettingsBrandingRoute =
+  CClientIdSettingsBrandingRouteImport.update({
+    id: '/c/$clientId/settings/branding',
+    path: '/c/$clientId/settings/branding',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/select-client': typeof SelectClientRoute
+  '/super-admin/clients': typeof SuperAdminClientsRoute
+  '/c/$clientId/alerts': typeof CClientIdAlertsRoute
+  '/c/$clientId/dashboard-builder': typeof CClientIdDashboardBuilderRoute
+  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRoute
+  '/c/$clientId/metrics': typeof CClientIdMetricsRoute
+  '/c/$clientId/onboarding': typeof CClientIdOnboardingRoute
+  '/c/$clientId/overview': typeof CClientIdOverviewRoute
+  '/c/$clientId/reports': typeof CClientIdReportsRoute
+  '/c/$clientId/updates': typeof CClientIdUpdatesRoute
+  '/c/$clientId/settings/branding': typeof CClientIdSettingsBrandingRoute
+  '/c/$clientId/settings/users': typeof CClientIdSettingsUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/select-client': typeof SelectClientRoute
+  '/super-admin/clients': typeof SuperAdminClientsRoute
+  '/c/$clientId/alerts': typeof CClientIdAlertsRoute
+  '/c/$clientId/dashboard-builder': typeof CClientIdDashboardBuilderRoute
+  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRoute
+  '/c/$clientId/metrics': typeof CClientIdMetricsRoute
+  '/c/$clientId/onboarding': typeof CClientIdOnboardingRoute
+  '/c/$clientId/overview': typeof CClientIdOverviewRoute
+  '/c/$clientId/reports': typeof CClientIdReportsRoute
+  '/c/$clientId/updates': typeof CClientIdUpdatesRoute
+  '/c/$clientId/settings/branding': typeof CClientIdSettingsBrandingRoute
+  '/c/$clientId/settings/users': typeof CClientIdSettingsUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/select-client': typeof SelectClientRoute
+  '/super-admin/clients': typeof SuperAdminClientsRoute
+  '/c/$clientId/alerts': typeof CClientIdAlertsRoute
+  '/c/$clientId/dashboard-builder': typeof CClientIdDashboardBuilderRoute
+  '/c/$clientId/data-sources': typeof CClientIdDataSourcesRoute
+  '/c/$clientId/metrics': typeof CClientIdMetricsRoute
+  '/c/$clientId/onboarding': typeof CClientIdOnboardingRoute
+  '/c/$clientId/overview': typeof CClientIdOverviewRoute
+  '/c/$clientId/reports': typeof CClientIdReportsRoute
+  '/c/$clientId/updates': typeof CClientIdUpdatesRoute
+  '/c/$clientId/settings/branding': typeof CClientIdSettingsBrandingRoute
+  '/c/$clientId/settings/users': typeof CClientIdSettingsUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/select-client'
+    | '/super-admin/clients'
+    | '/c/$clientId/alerts'
+    | '/c/$clientId/dashboard-builder'
+    | '/c/$clientId/data-sources'
+    | '/c/$clientId/metrics'
+    | '/c/$clientId/onboarding'
+    | '/c/$clientId/overview'
+    | '/c/$clientId/reports'
+    | '/c/$clientId/updates'
+    | '/c/$clientId/settings/branding'
+    | '/c/$clientId/settings/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/select-client'
+    | '/super-admin/clients'
+    | '/c/$clientId/alerts'
+    | '/c/$clientId/dashboard-builder'
+    | '/c/$clientId/data-sources'
+    | '/c/$clientId/metrics'
+    | '/c/$clientId/onboarding'
+    | '/c/$clientId/overview'
+    | '/c/$clientId/reports'
+    | '/c/$clientId/updates'
+    | '/c/$clientId/settings/branding'
+    | '/c/$clientId/settings/users'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/select-client'
+    | '/super-admin/clients'
+    | '/c/$clientId/alerts'
+    | '/c/$clientId/dashboard-builder'
+    | '/c/$clientId/data-sources'
+    | '/c/$clientId/metrics'
+    | '/c/$clientId/onboarding'
+    | '/c/$clientId/overview'
+    | '/c/$clientId/reports'
+    | '/c/$clientId/updates'
+    | '/c/$clientId/settings/branding'
+    | '/c/$clientId/settings/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  SelectClientRoute: typeof SelectClientRoute
+  SuperAdminClientsRoute: typeof SuperAdminClientsRoute
+  CClientIdAlertsRoute: typeof CClientIdAlertsRoute
+  CClientIdDashboardBuilderRoute: typeof CClientIdDashboardBuilderRoute
+  CClientIdDataSourcesRoute: typeof CClientIdDataSourcesRoute
+  CClientIdMetricsRoute: typeof CClientIdMetricsRoute
+  CClientIdOnboardingRoute: typeof CClientIdOnboardingRoute
+  CClientIdOverviewRoute: typeof CClientIdOverviewRoute
+  CClientIdReportsRoute: typeof CClientIdReportsRoute
+  CClientIdUpdatesRoute: typeof CClientIdUpdatesRoute
+  CClientIdSettingsBrandingRoute: typeof CClientIdSettingsBrandingRoute
+  CClientIdSettingsUsersRoute: typeof CClientIdSettingsUsersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/select-client': {
+      id: '/select-client'
+      path: '/select-client'
+      fullPath: '/select-client'
+      preLoaderRoute: typeof SelectClientRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +237,101 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super-admin/clients': {
+      id: '/super-admin/clients'
+      path: '/super-admin/clients'
+      fullPath: '/super-admin/clients'
+      preLoaderRoute: typeof SuperAdminClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/updates': {
+      id: '/c/$clientId/updates'
+      path: '/c/$clientId/updates'
+      fullPath: '/c/$clientId/updates'
+      preLoaderRoute: typeof CClientIdUpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/reports': {
+      id: '/c/$clientId/reports'
+      path: '/c/$clientId/reports'
+      fullPath: '/c/$clientId/reports'
+      preLoaderRoute: typeof CClientIdReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/overview': {
+      id: '/c/$clientId/overview'
+      path: '/c/$clientId/overview'
+      fullPath: '/c/$clientId/overview'
+      preLoaderRoute: typeof CClientIdOverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/onboarding': {
+      id: '/c/$clientId/onboarding'
+      path: '/c/$clientId/onboarding'
+      fullPath: '/c/$clientId/onboarding'
+      preLoaderRoute: typeof CClientIdOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/metrics': {
+      id: '/c/$clientId/metrics'
+      path: '/c/$clientId/metrics'
+      fullPath: '/c/$clientId/metrics'
+      preLoaderRoute: typeof CClientIdMetricsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/data-sources': {
+      id: '/c/$clientId/data-sources'
+      path: '/c/$clientId/data-sources'
+      fullPath: '/c/$clientId/data-sources'
+      preLoaderRoute: typeof CClientIdDataSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/dashboard-builder': {
+      id: '/c/$clientId/dashboard-builder'
+      path: '/c/$clientId/dashboard-builder'
+      fullPath: '/c/$clientId/dashboard-builder'
+      preLoaderRoute: typeof CClientIdDashboardBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/alerts': {
+      id: '/c/$clientId/alerts'
+      path: '/c/$clientId/alerts'
+      fullPath: '/c/$clientId/alerts'
+      preLoaderRoute: typeof CClientIdAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/settings/users': {
+      id: '/c/$clientId/settings/users'
+      path: '/c/$clientId/settings/users'
+      fullPath: '/c/$clientId/settings/users'
+      preLoaderRoute: typeof CClientIdSettingsUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$clientId/settings/branding': {
+      id: '/c/$clientId/settings/branding'
+      path: '/c/$clientId/settings/branding'
+      fullPath: '/c/$clientId/settings/branding'
+      preLoaderRoute: typeof CClientIdSettingsBrandingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  SelectClientRoute: SelectClientRoute,
+  SuperAdminClientsRoute: SuperAdminClientsRoute,
+  CClientIdAlertsRoute: CClientIdAlertsRoute,
+  CClientIdDashboardBuilderRoute: CClientIdDashboardBuilderRoute,
+  CClientIdDataSourcesRoute: CClientIdDataSourcesRoute,
+  CClientIdMetricsRoute: CClientIdMetricsRoute,
+  CClientIdOnboardingRoute: CClientIdOnboardingRoute,
+  CClientIdOverviewRoute: CClientIdOverviewRoute,
+  CClientIdReportsRoute: CClientIdReportsRoute,
+  CClientIdUpdatesRoute: CClientIdUpdatesRoute,
+  CClientIdSettingsBrandingRoute: CClientIdSettingsBrandingRoute,
+  CClientIdSettingsUsersRoute: CClientIdSettingsUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -51,7 +51,7 @@ function ReportsPage() {
     let y = 46;
     chosen.forEach((m) => {
       doc.setFontSize(10);
-      doc.text(`${m.name}: ${formatValue(aggregate(m), m.format)}`, 14, y);
+      doc.text(`${m.name}: ${formatValue(aggregate(m), m.format ?? "number")}`, 14, y);
       y += 7;
       if (y > 270) { doc.addPage(); y = 20; }
     });
@@ -90,7 +90,7 @@ function ReportsPage() {
                 }} />
                 <div className="flex-1">
                   <div className="font-medium text-sm">{m.name}</div>
-                  <div className="text-xs text-muted-foreground">{formatValue(aggregate(m), m.format)}</div>
+                  <div className="text-xs text-muted-foreground">{formatValue(aggregate(m), m.format ?? "number")}</div>
                 </div>
               </label>
             ))}
@@ -111,7 +111,7 @@ function ReportsPage() {
                 {chosen.map((m) => (
                   <div key={m.id} className="flex justify-between border-b py-1">
                     <span className="text-muted-foreground">{m.name}</span>
-                    <span className="font-medium">{formatValue(aggregate(m), m.format)}</span>
+                    <span className="font-medium">{formatValue(aggregate(m), m.format ?? "number")}</span>
                   </div>
                 ))}
               </div>
