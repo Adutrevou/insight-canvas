@@ -90,6 +90,8 @@ function applyBrandTheme(brand: string | null | undefined) {
     root.style.setProperty(`--chart-${i + 1}`, `hsl(${hue} ${Math.min(80, Math.max(45, s))}% ${50 - i * 4}%)`);
   });
 }
+
+export function AppShell({ children }: { children: ReactNode }) {
   const params = useParams({ strict: false }) as { clientId?: string };
   const clientId = params.clientId!;
   const { user, isSuperAdmin, signOut } = useAuth();
